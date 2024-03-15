@@ -8,9 +8,9 @@ const CUSTOM_OPTIONS = {
   MUID: '',
   _U: '',
 
-  BYPASS_SERVER: '',
+  BYPASS_SERVER: 'https://cct.nbing.eu.org',
   APIKEY: '',
-  Go_Proxy_BingAI_BLANK_API_KEY: false,
+  Go_Proxy_BingAI_BLANK_API_KEY: true,
 
   INFO: '',
   NIGHTLY: false,
@@ -22,6 +22,7 @@ const WEB_CONFIG = {
 
 const SYDNEY_ORIGIN = 'https://sydney.bing.com';
 const BING_ORIGIN = 'https://www.bing.com';
+const BING_PROXY = 'https://sokwith-nbing.hf.space';
 const EDGE_ORIGIN = 'https://edgeservices.bing.com';
 const DESIGNER_ORIGIN = 'https://designer.microsoft.com';
 const DESIGNER_CDN_ORIGIN = 'https://cdn.designerapp.osi.office.net';
@@ -457,6 +458,8 @@ export default {
     let targetUrl;
     if (currentUrl.pathname.startsWith('/sydney')) {
       targetUrl = new URL(SYDNEY_ORIGIN + currentUrl.pathname + currentUrl.search);
+    }  else if (currentUrl.pathname.includes('/turing/captcha/challenge')) {
+        targetUrl = new URL(BING_PROXY + currentUrl.pathname + currentUrl.search); 
     } else if (currentUrl.pathname.startsWith('/edgesvc')) {
       targetUrl = new URL(EDGE_ORIGIN + currentUrl.pathname + currentUrl.search);
     } else if (currentUrl.pathname.startsWith('/designer/')) {
@@ -501,37 +504,59 @@ export default {
     const cookie = request.headers.get('Cookie') || '';
     let cookies = cookie;
 
-    if (!cookie.includes('KievRPSSecAuth=')) {
-      if (CUSTOM_OPTIONS.KievRPSSecAuth.length !== 0) {
-        cookies += '; KievRPSSecAuth=' + CUSTOM_OPTIONS.KievRPSSecAuth;
+   //使用匿名cookie过验证
+    if (currentUrl.pathname.includes('/turing/captcha/challenge')) {
+      if (!cookie.includes('_U=')) {
+        cookies += '; _U=' + randomString(128);
       } else {
-        cookies += '; KievRPSSecAuth=' + randomString(512);
+        cookies = cookies.replace(/_U=[^;]+/, '_U=' + randomString(128));
       }
-    }
-    if (!cookie.includes('_RwBf=')) {
-      if (CUSTOM_OPTIONS._RwBf.length !== 0) {
-        cookies += '; _RwBf=' + CUSTOM_OPTIONS._RwBf
+      
+      if (!cookie.includes('KievRPSSecAuth=')) {
+        cookies += '; KievRPSSecAuth=' + randomString(128);
+      } else {
+        cookies = cookies.replace(/KievRPSSecAuth=[^;]+/, 'KievRPSSecAuth=' + randomString(128));
       }
-    }
-    if (!cookie.includes('MUID=')) {
-      if (CUSTOM_OPTIONS.MUID.length !== 0) {
-        cookies += '; MUID=' + CUSTOM_OPTIONS.MUID
+      
+      if (!cookie.includes('_RwBf=')) {
+        cookies += '; _RwBf=' + randomString(128);
+      } else {
+        cookies = cookies.replace(/_RwBf=[^;]+/, '_RwBf=' + randomString(128));
       }
-    }
-    if (!cookie.includes('_U=')) {
-      if (CUSTOM_OPTIONS._U.length !== 0) {
-        const _Us = CUSTOM_OPTIONS._U.split(',');
-        console.log(_Us[getRandomInt(0, _Us.length)])
-        cookies += '; _U=' + _Us[getRandomInt(0, _Us.length)];
-      }
-    }
+//使用传递cookie登录
+       }else {
+        
+        if (!cookie.includes('KievRPSSecAuth=')) {
+          if (CUSTOM_OPTIONS.KievRPSSecAuth.length !== 0) {
+            cookies += '; KievRPSSecAuth=' + CUSTOM_OPTIONS.KievRPSSecAuth;
+          } else {
+            cookies += '; KievRPSSecAuth=' + randomString(512);
+          }
+        }
+        if (!cookie.includes('_RwBf=')) {
+          if (CUSTOM_OPTIONS._RwBf.length !== 0) {
+            cookies += '; _RwBf=' + CUSTOM_OPTIONS._RwBf
+          } else {
+            cookies += '; _RwBf=' + randomString(256);
+          }
+       }
+      
+        if (!cookie.includes('MUID=')) {
+            if (CUSTOM_OPTIONS.MUID.length !== 0) {
+              cookies += '; MUID=' + CUSTOM_OPTIONS.MUID;
+            } else {
+              cookies += '; MUID=' + randomString(32);
+            }
+        }
+        if (!cookie.includes('_U=')) {
+          if (CUSTOM_OPTIONS._U.length !== 0) {
+            cookies += '; _U=' + CUSTOM_OPTIONS._U;
+          } else {
+            cookies += '; _U=' + randomString(128);
+          }
+        }
+       }
 
-    if (currentUrl.pathname === '/turing/captcha/challenge') {
-      return challenge(request);
-    }
-    if (currentUrl.pathname === '/challenge/verify') {
-      return verify(request, cookies);
-    }
     if (currentUrl.pathname.startsWith('/v1') || currentUrl.pathname.startsWith('/api/v1')) {
       return bingapi(request, cookies);
     }
