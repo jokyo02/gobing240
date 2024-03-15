@@ -27,10 +27,6 @@
       "dest": "/api/challenge.go"
     },
     {
-      "src": "/challenge/verify",
-      "dest": "/api/verify.go"
-    },
-    {
       "src": "/v1/.*",
       "dest": "/api/v1/vercel.js"
     },
