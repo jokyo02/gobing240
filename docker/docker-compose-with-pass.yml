@@ -2,7 +2,7 @@ version: '3'
 
 services:
   go-proxy-bingai:
-    image: zklcdc/go-proxy-bingai:latest-with-pass
+    image: sokwith/go-proxy-bingai:latest-with-pass
     container_name: go-proxy-bingai-with-pass
     restart: always
     depends_on:

@@ -8,9 +8,9 @@ const CUSTOM_OPTIONS = {
   MUID: '',
   _U: '',
 
-  BYPASS_SERVER: '',
+  BYPASS_SERVER: 'https://cct.nbing.eu.org',
   APIKEY: '',
-  Go_Proxy_BingAI_BLANK_API_KEY: false,
+  Go_Proxy_BingAI_BLANK_API_KEY: true,
 
   INFO: '',
   NIGHTLY: false,
@@ -22,7 +22,7 @@ const WEB_CONFIG = {
 
 const SYDNEY_ORIGIN = 'https://sydney.bing.com';
 const BING_ORIGIN = 'https://www.bing.com';
-const BING_SR_ORIGIN = 'https://sr.bing.com';
+const BING_PROXY = 'https://sokwith-nbing.hf.space';
 const EDGE_ORIGIN = 'https://edgeservices.bing.com';
 const DESIGNER_ORIGIN = 'https://designer.microsoft.com';
 const DESIGNER_CDN_ORIGIN = 'https://cdn.designerapp.osi.office.net';
@@ -116,7 +116,6 @@ const rewriteBody = async (res) => {
       // @ts-ignore
       body = decodedContent.replaceAll(BING_ORIGIN.replace("http://", "").replace("https://", ""), WEB_CONFIG.WORKER_URL.replace("http://", "").replace("https://", ""));
       body = body.replaceAll(EDGE_ORIGIN.replace("http://", "").replace("https://", ""), WEB_CONFIG.WORKER_URL.replace("http://", "").replace("https://", ""));
-      body = body.replaceAll(BING_SR_ORIGIN.replace("http://", "").replace("https://", ""), WEB_CONFIG.WORKER_URL.replace("http://", "").replace("https://", ""));
       body = body.replaceAll(DESIGNER_CDN_ORIGIN.replace("http://", "").replace("https://", ""), WEB_CONFIG.WORKER_URL.replace("http://", "").replace("https://", "") + '/designer-cdn');
       body = body.replaceAll(DESIGNER_APP_EDOG_ORIGIN.replace("http://", "").replace("https://", ""), WEB_CONFIG.WORKER_URL.replace("http://", "").replace("https://", "") + '/designer-app-edog');
       body = body.replaceAll(DESIGNER_DOCUMENT_ORIGIN.replace("http://", "").replace("https://", ""), WEB_CONFIG.WORKER_URL.replace("http://", "").replace("https://", "") + '/designer-document');
@@ -140,7 +139,7 @@ const home = async (pathname) => {
   if (CUSTOM_OPTIONS.NIGHTLY) {
     baseUrl = 'https://raw.githubusercontent.com/Harry-zklcdc/go-proxy-bingai/nightly/';
   } else {
-    baseUrl = 'https://raw.githubusercontent.com/Harry-zklcdc/go-proxy-bingai/master/';
+    baseUrl = 'https://raw.githubusercontent.com/SokWith/go-bingai/master/';
   }
   let url;
   if (pathname.indexOf('/web/') === 0) {
@@ -383,7 +382,7 @@ const login = async (url, headers) => {
 const bingapi = async (request, cookie) => {
   if (!CUSTOM_OPTIONS.Go_Proxy_BingAI_BLANK_API_KEY && CUSTOM_OPTIONS.APIKEY == '') {
     CUSTOM_OPTIONS.APIKEY = 'sk-' + randomString(32);
-  }
+  } 
   const currentUrl = new URL(request.url);
   if ((currentUrl.pathname.startsWith('/v1/models/')) || (currentUrl.pathname.startsWith('/api/v1/models/'))) {
     return bingapiModel(request, Object.assign({ cookie: cookie }, CUSTOM_OPTIONS));
@@ -435,15 +434,6 @@ export default {
    * @returns
    */
   async fetch(request, env, ctx) {
-    CUSTOM_OPTIONS.KievRPSSecAuth = env.USER_KievRPSSecAuth || '';
-    CUSTOM_OPTIONS._RwBf = env.USER_RwBf || '';
-    CUSTOM_OPTIONS.MUID = env.USER_MUID || '';
-    CUSTOM_OPTIONS._U = env.Go_Proxy_BingAI_USER_TOKEN || '';
-    CUSTOM_OPTIONS.BYPASS_SERVER = env.BYPASS_SERVER || '';
-    CUSTOM_OPTIONS.APIKEY = env.APIKEY || '';
-    CUSTOM_OPTIONS.Go_Proxy_BingAI_BLANK_API_KEY = (env.Go_Proxy_BingAI_BLANK_API_KEY != '' && env.Go_Proxy_BingAI_BLANK_API_KEY != undefined &&env.Go_Proxy_BingAI_BLANK_API_KEY != null);
-    CUSTOM_OPTIONS.INFO = env.INFO || '';
-    CUSTOM_OPTIONS.NIGHTLY = (env.NIGHTLY != '' && env.NIGHTLY != undefined && env.NIGHTLY != null);
 
     const currentUrl = new URL(request.url);
     if (WEB_CONFIG.WORKER_URL == '') {
@@ -459,10 +449,10 @@ export default {
     let targetUrl;
     if (currentUrl.pathname.startsWith('/sydney')) {
       targetUrl = new URL(SYDNEY_ORIGIN + currentUrl.pathname + currentUrl.search);
+    }  else if (currentUrl.pathname.includes('/turing/captcha/challenge')) {
+        targetUrl = new URL(BING_PROXY + currentUrl.pathname + currentUrl.search); 
     } else if (currentUrl.pathname.startsWith('/edgesvc')) {
       targetUrl = new URL(EDGE_ORIGIN + currentUrl.pathname + currentUrl.search);
-    } else if (currentUrl.pathname.startsWith('/opaluqu')) {
-      targetUrl = new URL(BING_SR_ORIGIN + currentUrl.pathname + currentUrl.search);
     } else if (currentUrl.pathname.startsWith('/designer/')) {
       targetUrl = new URL(DESIGNER_ORIGIN + currentUrl.pathname.replaceAll('/designer/', '/') + currentUrl.search);
     } else if (currentUrl.pathname.startsWith('/designer-cdn/')) {
@@ -505,37 +495,59 @@ export default {
     const cookie = request.headers.get('Cookie') || '';
     let cookies = cookie;
 
-    if (!cookie.includes('KievRPSSecAuth=')) {
-      if (CUSTOM_OPTIONS.KievRPSSecAuth.length !== 0) {
-        cookies += '; KievRPSSecAuth=' + CUSTOM_OPTIONS.KievRPSSecAuth;
+   //使用匿名cookie过验证
+    if (currentUrl.pathname.includes('/turing/captcha/challenge')) {
+      if (!cookie.includes('_U=')) {
+        cookies += '; _U=' + randomString(128);
       } else {
-        cookies += '; KievRPSSecAuth=' + randomString(512);
+        cookies = cookies.replace(/_U=[^;]+/, '_U=' + randomString(128));
       }
-    }
-    if (!cookie.includes('_RwBf=')) {
-      if (CUSTOM_OPTIONS._RwBf.length !== 0) {
-        cookies += '; _RwBf=' + CUSTOM_OPTIONS._RwBf
+      
+      if (!cookie.includes('KievRPSSecAuth=')) {
+        cookies += '; KievRPSSecAuth=' + randomString(128);
+      } else {
+        cookies = cookies.replace(/KievRPSSecAuth=[^;]+/, 'KievRPSSecAuth=' + randomString(128));
       }
-    }
-    if (!cookie.includes('MUID=')) {
-      if (CUSTOM_OPTIONS.MUID.length !== 0) {
-        cookies += '; MUID=' + CUSTOM_OPTIONS.MUID
+      
+      if (!cookie.includes('_RwBf=')) {
+        cookies += '; _RwBf=' + randomString(128);
+      } else {
+        cookies = cookies.replace(/_RwBf=[^;]+/, '_RwBf=' + randomString(128));
       }
-    }
-    if (!cookie.includes('_U=')) {
-      if (CUSTOM_OPTIONS._U.length !== 0) {
-        const _Us = CUSTOM_OPTIONS._U.split(',');
-        console.log(_Us[getRandomInt(0, _Us.length)])
-        cookies += '; _U=' + _Us[getRandomInt(0, _Us.length)];
-      }
-    }
+//使用传递cookie登录
+       }else {
+        
+        if (!cookie.includes('KievRPSSecAuth=')) {
+          if (CUSTOM_OPTIONS.KievRPSSecAuth.length !== 0) {
+            cookies += '; KievRPSSecAuth=' + CUSTOM_OPTIONS.KievRPSSecAuth;
+          } else {
+            cookies += '; KievRPSSecAuth=' + randomString(512);
+          }
+        }
+        if (!cookie.includes('_RwBf=')) {
+          if (CUSTOM_OPTIONS._RwBf.length !== 0) {
+            cookies += '; _RwBf=' + CUSTOM_OPTIONS._RwBf
+          } else {
+            cookies += '; _RwBf=' + randomString(256);
+          }
+       }
+      
+        if (!cookie.includes('MUID=')) {
+            if (CUSTOM_OPTIONS.MUID.length !== 0) {
+              cookies += '; MUID=' + CUSTOM_OPTIONS.MUID;
+            } else {
+              cookies += '; MUID=' + randomString(32);
+            }
+        }
+        if (!cookie.includes('_U=')) {
+          if (CUSTOM_OPTIONS._U.length !== 0) {
+            cookies += '; _U=' + CUSTOM_OPTIONS._U;
+          } else {
+            cookies += '; _U=' + randomString(128);
+          }
+        }
+       }
 
-    if (currentUrl.pathname === '/turing/captcha/challenge') {
-      return challenge(request);
-    }
-    if (currentUrl.pathname === '/challenge/verify') {
-      return verify(request, cookies);
-    }
     if (currentUrl.pathname.startsWith('/v1') || currentUrl.pathname.startsWith('/api/v1')) {
       return bingapi(request, cookies);
     }
@@ -545,8 +557,8 @@ export default {
 
     newHeaders.set('Cookie', cookies);
     const oldUA = request.headers.get('user-agent') || '';
-    const isMobile = oldUA.includes('Mobile') || oldUA.includes('Android');
-    if (isMobile) {
+    let isMobile = oldUA.includes('Mobile') || oldUA.includes('Android');
+    if (isMobile = true) {
       newHeaders.set(
         'user-agent',
         'Mozilla/5.0 (iPhone; CPU iPhone OS 15_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.7 Mobile/15E148 Safari/605.1.15 BingSapphire/1.0.410427012'
