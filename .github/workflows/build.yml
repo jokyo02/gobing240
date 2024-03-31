@@ -9,7 +9,7 @@ jobs:
   build:
     name: build
     runs-on: ubuntu-latest
-    if: github.repository == 'Harry-zklcdc/go-proxy-bingai'
+    if: github.repository == 'SokWith/go-bingai'
     steps:
       - uses: actions/checkout@v3
 
