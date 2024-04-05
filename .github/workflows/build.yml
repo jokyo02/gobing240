@@ -3,12 +3,13 @@ on:
   push:
     tags:
       - v*
+  workflow_dispatch:
 
 jobs:
   build:
     name: build
     runs-on: ubuntu-latest
-    if: github.repository == 'Harry-zklcdc/go-proxy-bingai'
+    if: github.repository == 'SokWith/go-bingai'
     steps:
       - uses: actions/checkout@v3
 
@@ -33,8 +34,8 @@ jobs:
 
       - name: Commit latest webFile
         run: |
-          git config --global user.email "zklcdc@qq.com"
-          git config --global user.name "Harry-zklcdc"
+          git config --global user.email "me@sokwith.eu.org"
+          git config --global user.name "SokWith"
           git add web/*
           git commit -m "[Upgrade] 🚀 Upload latest webFile"
           git push origin HEAD:master
@@ -118,8 +119,8 @@ jobs:
           file: ./docker/Dockerfile  
           push: true
           tags: |
-            docker.io/zklcdc/go-proxy-bingai:${{ github.ref_name }}
-            docker.io/zklcdc/go-proxy-bingai:latest
+            docker.io/sokwith/go-proxy-bingai:${{ github.ref_name }}
+            docker.io/sokwith/go-proxy-bingai:latest
 
       - name: Delete artifact
         uses: geekyeggo/delete-artifact@v2
@@ -162,5 +163,5 @@ jobs:
           file: ./docker/Dockerfile-with-pass
           push: true
           tags: |
-            docker.io/zklcdc/go-proxy-bingai:${{ github.ref_name }}-with-pass
-            docker.io/zklcdc/go-proxy-bingai:latest-with-pass
+            docker.io/sokwith/go-proxy-bingai:${{ github.ref_name }}-with-pass
+            docker.io/sokwith/go-proxy-bingai:latest-with-pass

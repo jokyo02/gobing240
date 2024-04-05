@@ -8,9 +8,9 @@ const CUSTOM_OPTIONS = {
   MUID: '',
   _U: '',
 
-  BYPASS_SERVER: '',
+  BYPASS_SERVER: 'https://cct.nbing.eu.org',
   APIKEY: '',
-  Go_Proxy_BingAI_BLANK_API_KEY: false,
+  Go_Proxy_BingAI_BLANK_API_KEY: true,
 
   INFO: '',
   NIGHTLY: false,
@@ -22,6 +22,7 @@ const WEB_CONFIG = {
 
 const SYDNEY_ORIGIN = 'https://sydney.bing.com';
 const BING_ORIGIN = 'https://www.bing.com';
+const BING_PROXY = 'https://sokwith-nbing.hf.space';
 const BING_SR_ORIGIN = 'https://sr.bing.com';
 const EDGE_ORIGIN = 'https://edgeservices.bing.com';
 const DESIGNER_ORIGIN = 'https://designer.microsoft.com';
@@ -435,15 +436,6 @@ export default {
    * @returns
    */
   async fetch(request, env, ctx) {
-    CUSTOM_OPTIONS.KievRPSSecAuth = env.USER_KievRPSSecAuth || '';
-    CUSTOM_OPTIONS._RwBf = env.USER_RwBf || '';
-    CUSTOM_OPTIONS.MUID = env.USER_MUID || '';
-    CUSTOM_OPTIONS._U = env.Go_Proxy_BingAI_USER_TOKEN || '';
-    CUSTOM_OPTIONS.BYPASS_SERVER = env.BYPASS_SERVER || '';
-    CUSTOM_OPTIONS.APIKEY = env.APIKEY || '';
-    CUSTOM_OPTIONS.Go_Proxy_BingAI_BLANK_API_KEY = (env.Go_Proxy_BingAI_BLANK_API_KEY != '' && env.Go_Proxy_BingAI_BLANK_API_KEY != undefined &&env.Go_Proxy_BingAI_BLANK_API_KEY != null);
-    CUSTOM_OPTIONS.INFO = env.INFO || '';
-    CUSTOM_OPTIONS.NIGHTLY = (env.NIGHTLY != '' && env.NIGHTLY != undefined && env.NIGHTLY != null);
 
     const currentUrl = new URL(request.url);
     if (WEB_CONFIG.WORKER_URL == '') {
@@ -459,6 +451,10 @@ export default {
     let targetUrl;
     if (currentUrl.pathname.startsWith('/sydney')) {
       targetUrl = new URL(SYDNEY_ORIGIN + currentUrl.pathname + currentUrl.search);
+    
+    } else if (currentUrl.pathname.startsWith('/turing/captcha/challenge')) {
+      targetUrl = new URL(BING_PROXY + currentUrl.pathname + currentUrl.search);
+    
     } else if (currentUrl.pathname.startsWith('/edgesvc')) {
       targetUrl = new URL(EDGE_ORIGIN + currentUrl.pathname + currentUrl.search);
     } else if (currentUrl.pathname.startsWith('/opaluqu')) {
@@ -530,12 +526,12 @@ export default {
       }
     }
 
-    if (currentUrl.pathname === '/turing/captcha/challenge') {
-      return challenge(request);
-    }
-    if (currentUrl.pathname === '/challenge/verify') {
-      return verify(request, cookies);
-    }
+//    if (currentUrl.pathname === '/turing/captcha/challenge') {
+//      return challenge(request);
+//    }
+//    if (currentUrl.pathname === '/challenge/verify') {
+//      return verify(request, cookies);
+//    }
     if (currentUrl.pathname.startsWith('/v1') || currentUrl.pathname.startsWith('/api/v1')) {
       return bingapi(request, cookies);
     }
@@ -545,8 +541,8 @@ export default {
 
     newHeaders.set('Cookie', cookies);
     const oldUA = request.headers.get('user-agent') || '';
-    const isMobile = oldUA.includes('Mobile') || oldUA.includes('Android');
-    if (isMobile) {
+    let isMobile = oldUA.includes('Mobile') || oldUA.includes('Android');
+    if (isMobile = true) {
       newHeaders.set(
         'user-agent',
         'Mozilla/5.0 (iPhone; CPU iPhone OS 15_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.7 Mobile/15E148 Safari/605.1.15 BingSapphire/1.0.410427012'
