@@ -4,6 +4,9 @@ import (
 	"adams549659584/go-proxy-bingai/common/helper"
 	"fmt"
 	"net/http"
+	"adams549659584/go-proxy-bingai/common"
+	"os"
+	"net/url"
 )
 
 const respChallengeHtml = `
@@ -84,6 +87,7 @@ const respChallengeHtml = `
 	</body>
 </html>
 `
+var BingURL = os.Getenv("BING_PROXY_DM")
 
 func ChallengeHandler(w http.ResponseWriter, r *http.Request) {
 	if !helper.CheckAuth(r) {
@@ -91,6 +95,7 @@ func ChallengeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if BingURL == "" {
 	if r.Method != "GET" {
 		helper.CommonResult(w, http.StatusMethodNotAllowed, "Method Not Allowed", nil)
 		return
@@ -98,4 +103,8 @@ func ChallengeHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.Write([]byte(fmt.Sprintf(respChallengeHtml, r.URL.Query().Get("iframeid"))))
-}
+	}else{
+		proxyurl, _ := url.Parse(BingURL)
+		common.NewSingleHostReverseProxy(proxyurl).ServeHTTP(w, r)	
+		}
+	}
