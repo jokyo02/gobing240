@@ -793,12 +793,12 @@ const autoPassCFChallenge = async () => {
     <NForm ref="formRef" label-placement="left" label-width="auto" require-mark-placement="right-hanging" style="margin-top: 16px;">
       <NGrid x-gap="0" :cols="2">
         <NGridItem>
-          <NFormItem path="cookiesEnable" label="自动人机验证">
+          <NFormItem path="cookiesEnable" label="拉取推送Cookie">
             <NTooltip>
               <template #trigger>
                 <NButton type="info" :loading="passingCFChallenge" @click="settingMenu('autoPassCFChallenge')">启动</NButton>
               </template>
-              旧版本的人机验证, 现已完全自动代理通过
+              配合推送Cookie插件, 实现账户自动拉取
             </NTooltip>
           </NFormItem>
         </NGridItem>
