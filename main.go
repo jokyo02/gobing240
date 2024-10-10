@@ -34,7 +34,7 @@ func main() {
 
 	http.HandleFunc("/th/", helper.Middleware(api.Th))
 	http.HandleFunc("/designer/", helper.Middleware(api.Designer))
-		
+
 	http.HandleFunc("/rp", helper.Middleware(RedirectHandler))
 
 	http.HandleFunc("/edgesvc/", helper.Middleware(api.Edgesvc))
