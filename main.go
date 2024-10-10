@@ -11,6 +11,10 @@ import (
 	"time"
 )
 
+func RedirectHandler(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "/web/rp", http.StatusMovedPermanently)
+}
+
 func main() {
 	http.HandleFunc("/v1/chat/completions", helper.Middleware(v1.ChatHandler))
 	http.HandleFunc("/v1/images/generations", helper.Middleware(v1.ImageHandler))
@@ -35,8 +39,8 @@ func main() {
 	http.HandleFunc("/sydney/", helper.Middleware(wss_api.Sydney))
 	http.HandleFunc("/opaluqu/", helper.Middleware(wss_api.Opaluqu))
 
-	http.HandleFunc("/rp", helper.Middleware(func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/web/rp", http.StatusMovedPermanently)
+	http.HandleFunc("/rp", helper.Middleware(RedirectHandler))
+	
 	}))
 
 	if common.IS_DEBUG_MODE {
