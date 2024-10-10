@@ -41,8 +41,6 @@ func main() {
 	http.HandleFunc("/sydney/", helper.Middleware(wss_api.Sydney))
 	http.HandleFunc("/opaluqu/", helper.Middleware(wss_api.Opaluqu))
 
-	
-	}))
 
 	if common.IS_DEBUG_MODE {
 		http.HandleFunc("/web/", helper.Middleware(web.DebugWebHandler))
