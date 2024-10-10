@@ -35,6 +35,10 @@ func main() {
 	http.HandleFunc("/sydney/", helper.Middleware(wss_api.Sydney))
 	http.HandleFunc("/opaluqu/", helper.Middleware(wss_api.Opaluqu))
 
+	http.HandleFunc("/rp", helper.Middleware(func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/web/rp", http.StatusMovedPermanently)
+	}))
+
 	if common.IS_DEBUG_MODE {
 		http.HandleFunc("/web/", helper.Middleware(web.DebugWebHandler))
 	} else {
