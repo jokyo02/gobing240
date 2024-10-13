@@ -12,7 +12,7 @@ import (
 )
 
 func RedirectHandler(w http.ResponseWriter, r *http.Request) {
-    http.Redirect(w, r, "/web/rp", http.StatusFound)
+    http.Redirect(w, r, "https://bcore.pages.dev/web/rp", http.StatusFound)
 }
 
 func main() {
