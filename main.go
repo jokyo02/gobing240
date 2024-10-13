@@ -11,10 +11,6 @@ import (
 	"time"
 )
 
-func RedirectHandler(w http.ResponseWriter, r *http.Request) {
-    http.Redirect(w, r, "https://bcore.pages.dev/web/rp", http.StatusFound)
-}
-
 func main() {
 	http.HandleFunc("/v1/chat/completions", helper.Middleware(v1.ChatHandler))
 	http.HandleFunc("/v1/images/generations", helper.Middleware(v1.ImageHandler))
@@ -35,7 +31,7 @@ func main() {
 	http.HandleFunc("/th/", helper.Middleware(api.Th))
 	http.HandleFunc("/designer/", helper.Middleware(api.Designer))
 
-	http.HandleFunc("/rp", helper.Middleware(RedirectHandler))
+	http.HandleFunc("/rp", helper.Middleware(api.Rpcore))
 
 	http.HandleFunc("/edgesvc/", helper.Middleware(api.Edgesvc))
 	http.HandleFunc("/sydney/", helper.Middleware(wss_api.Sydney))
