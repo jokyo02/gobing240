@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func Th(w http.ResponseWriter, r *http.Request) {
+func Rpcore(w http.ResponseWriter, r *http.Request) {
 	if !helper.CheckAuth(r) {
 		helper.UnauthorizedResult(w)
 		return
